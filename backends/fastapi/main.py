@@ -1,39 +1,29 @@
-import imp
 import uvicorn
 from fastapi import FastAPI
 
 
-from motor.motor_asyncio import AsyncIOMotorClient
-
-from config import settings
+from database import get_db, close_db
 
 app = FastAPI()
 
 
 @app.on_event("startup")
-async def startup_db_client():
-    # app.mongodb_client = AsyncIOMotorClient(settings.DB_URL)
-    # app.mongodb = app.mongodb_client[settings.DB_NAME]
+def startup_db_client():
+  
     """
     Start the mongo db database before the app loads up. Customize the settings of your dabatase here.
     """
-    
-    mongo_client = AsyncIOMotorClient()
-    mongdb = mongo_client["todos-fastapi"]
-    app.mongodb_client = mongo_client
-    app.mongodb = mongdb
-    
-  
-
+    # Handle for when the excepet is baa
+    db = get_db()
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
-  
-    assert app.mongodb_client
-   # assert here I'm not sure
-    app.mongodb_client.close()
+    close_db()
+
 
 if __name__ == "__main__":
+   
+    print(startup_db_client())
     uvicorn.run(
         "main:app",
         # host=settings.HOST,
